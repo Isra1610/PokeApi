@@ -103,7 +103,7 @@ const styles = {
   },
   subTitle: {
     fontWeight: '900',
-    textAlign: 'left',
+    textAlign: {xs: 'center', sm:'left'},
     margin: '20px 0',
     color: '#18181B',
     fontSize: {xs: '1.5rem', sm: '2rem'}
@@ -118,10 +118,10 @@ const styles = {
     position: 'relative',
   },
   imageBox:{
-    width: '30%',
+    width: { sm:'30%'},
   },
   statsBox: {
-    width: '60%'
+    width: { sm:'60%'}
   },
   loader: {
     minHeight: '75vh',
@@ -143,6 +143,7 @@ const styles = {
   },
   box: {
     display: 'flex',
+    flexDirection: {xs: 'column', sm: 'row'},
     justifyContent: 'space-between'
   },
 }
