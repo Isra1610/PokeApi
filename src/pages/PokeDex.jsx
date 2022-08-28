@@ -1,5 +1,5 @@
 import { CardActionArea, CircularProgress, Grid, Card, CardContent, CardMedia, Typography, Box, Button, Checkbox } from '@mui/material';
-import { useContext, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { useFetchPokemons } from '../hooks'
 import Favorite from '@mui/icons-material/Favorite'
 import FavoriteBorder from '@mui/icons-material/FavoriteBorder'
@@ -19,6 +19,10 @@ const PokeDex = () => {
       return pokemonPage
     }
 
+    const handleFavoritesDB = () => {
+      localStorage.setItem("favoritesDB", JSON.stringify(favorites))
+    }
+
     const navigate = useNavigate()
 
     const forwardPage = () => {
@@ -27,46 +31,34 @@ const PokeDex = () => {
 
     const handleFavorites = (e, id) => {
       if(e.target.checked) {
+
         const favorite = pokemonsList.filter(item => item.id === id)
         favorite[0].check = e.target.checked
         setFavorites([...favorites, favorite[0]])
-        setPokemonsList([...pokemonsList, pokemonsList.find(item => item.id === id).check = e.target.checked])
+
+        const favPokemon = pokemonsList.findIndex(item => item.id === id)
+        pokemonsList[favPokemon].check = e.target.checked
+        setPokemonsList(pokemonsList)
+
       } else {
         setFavorites(favorites.filter(item => item.id !== id))
-        setPokemonsList([...pokemonsList, pokemonsList.find(item => item.id === id).check = e.target.checked])
+        const favPokemon = pokemonsList.findIndex(item => item.id === id)
+        pokemonsList[favPokemon].check = e.target.checked
+        setPokemonsList(pokemonsList)
       }
-    }
-
-    const handleFavoritesDB = () => {
-      localStorage.setItem("favoritesDB", JSON.stringify(favorites))
     }
 
     const handleDetails = (id) => {
       navigate(`/details/${id}`)
     }
 
-    handleFavoritesDB()
+    useEffect(()=> {
+      handleFavoritesDB()
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    },[favorites])
 
-
-    // const handleSavedFavorites = () => {
-    //   if(favoritesDB?.length){
-    //     let data = []
-    //     for(let i = 0; i < pokemonsList?.length; i++){
-    //       let fetchPokemon = pokemonsList[i]
-    //       let favorite = favoritesDB.find(item => item.id === fetchPokemon?.id)
-    //       console.log(favorite)
-    //         if(favorite){
-    //           data.push(favorite)
-    //         }else {
-    //           data.push(fetchPokemon)
-    //         }
-    //       }
-    //       return data
-    //     }
-    //     else {
-    //       return pokemonsList
-    //     }
-    // }
+    console.log(pokemonsList)
+    console.log(favorites)
 
     return (
       <Box sx={styles.container}>
@@ -83,7 +75,7 @@ const PokeDex = () => {
                           alt={pokemon?.name}
                         />
                         <CardContent>
-                        <Checkbox icon={<FavoriteBorder />} checkedIcon={<Favorite sx={styles.checked}/>} sx={styles.favorite} onChange={e => handleFavorites(e, pokemon.id)} checked={pokemon.check ?? false}/>
+                        <Checkbox name="check" icon={<FavoriteBorder />} checkedIcon={<Favorite sx={styles.checked}/>} sx={styles.favorite} onChange={e => handleFavorites(e, pokemon.id)} checked={favorites?.find(item => item.id === pokemon.id)?.check || pokemon.check || false}/>
                         <Typography gutterBottom variant="h6" component="div" sx={styles.nick} onClick={()=>handleDetails(pokemon?.id)}>
                             {`${pokemon.name} #${pokemon.id}`}
                         </Typography>
