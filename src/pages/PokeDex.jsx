@@ -1,9 +1,10 @@
 import { CardActionArea, CircularProgress, Grid, Card, CardContent, CardMedia, Typography, Box, Button, Checkbox } from '@mui/material';
-import { useContext, useEffect, useState } from 'react'
+import { useContext, useState } from 'react'
 import { useFetchPokemons } from '../hooks'
 import Favorite from '@mui/icons-material/Favorite'
 import FavoriteBorder from '@mui/icons-material/FavoriteBorder'
 import GlobalContext from '../context/provider'
+import { useNavigate } from 'react-router-dom'
 
 const PokeDex = () => {
 
@@ -17,6 +18,8 @@ const PokeDex = () => {
       const pokemonPage = pokemonsList.slice(0, currentPage + 18)
       return pokemonPage
     }
+
+    const navigate = useNavigate()
 
     const forwardPage = () => {
       setCurrentPage(currentPage + 18)
@@ -38,9 +41,32 @@ const PokeDex = () => {
       localStorage.setItem("favoritesDB", JSON.stringify(favorites))
     }
 
-    useEffect(()=> {
-      handleFavoritesDB()
-    },[favorites])
+    const handleDetails = (id) => {
+      navigate(`/details/${id}`)
+    }
+
+    handleFavoritesDB()
+
+
+    // const handleSavedFavorites = () => {
+    //   if(favoritesDB?.length){
+    //     let data = []
+    //     for(let i = 0; i < pokemonsList?.length; i++){
+    //       let fetchPokemon = pokemonsList[i]
+    //       let favorite = favoritesDB.find(item => item.id === fetchPokemon?.id)
+    //       console.log(favorite)
+    //         if(favorite){
+    //           data.push(favorite)
+    //         }else {
+    //           data.push(fetchPokemon)
+    //         }
+    //       }
+    //       return data
+    //     }
+    //     else {
+    //       return pokemonsList
+    //     }
+    // }
 
     return (
       <Box sx={styles.container}>
@@ -58,7 +84,7 @@ const PokeDex = () => {
                         />
                         <CardContent>
                         <Checkbox icon={<FavoriteBorder />} checkedIcon={<Favorite sx={styles.checked}/>} sx={styles.favorite} onChange={e => handleFavorites(e, pokemon.id)} checked={pokemon.check ?? false}/>
-                        <Typography gutterBottom variant="h6" component="div" sx={styles.nick}>
+                        <Typography gutterBottom variant="h6" component="div" sx={styles.nick} onClick={()=>handleDetails(pokemon?.id)}>
                             {`${pokemon.name} #${pokemon.id}`}
                         </Typography>
                         </CardContent>

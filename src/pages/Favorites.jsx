@@ -1,14 +1,16 @@
 import { CardActionArea, Grid, Card, CardContent, CardMedia, Typography, Box, Checkbox } from '@mui/material';
-import { useContext, useEffect, useState } from 'react'
+import { useContext, useState } from 'react'
 import Favorite from '@mui/icons-material/Favorite'
 import FavoriteBorder from '@mui/icons-material/FavoriteBorder'
 import GlobalContext from '../context/provider'
+import { useNavigate } from 'react-router-dom'
 
 const MyFavorites = () => {
     
     const favoritesDB = JSON.parse(localStorage.getItem("favoritesDB"))
     const [favorites, setFavorites] = useState(favoritesDB)
     const { pokemonsList, setPokemonsList } = useContext(GlobalContext)
+    const navigate = useNavigate()
 
     const handleFavorites = (e, id) => {
       if(!e.target.checked) {
@@ -21,9 +23,11 @@ const MyFavorites = () => {
       localStorage.setItem("favoritesDB", JSON.stringify(favorites))
     }
 
-    useEffect(()=> {
-      handleFavoritesDB()
-    },[favorites])
+    handleFavoritesDB()
+
+    const handleDetails = (id) => {
+      navigate(`/details/${id}`)
+    }
 
     return (
       <Box sx={styles.container}>
@@ -41,7 +45,7 @@ const MyFavorites = () => {
                         />
                         <CardContent>
                         <Checkbox icon={<FavoriteBorder />} checkedIcon={<Favorite sx={styles.checked}/>} sx={styles.favorite} onChange={e => handleFavorites(e, pokemon.id)} checked={pokemon.check ?? false}/>
-                        <Typography gutterBottom variant="h6" component="div" sx={styles.nick}>
+                        <Typography gutterBottom variant="h6" component="div" sx={styles.nick} onClick={()=>handleDetails(pokemon?.id)}>
                             {`${pokemon.name} #${pokemon.id}`}
                         </Typography>
                         </CardContent>
@@ -74,7 +78,7 @@ const styles = {
     textAlign: 'center',
     margin: '20px 0',
     color: '#18181B',
-    fontSize: {xs: '3.5rem', sm: '6rem'}
+    fontSize: {xs: '2.5rem', sm: '4rem', md: '6rem'}
   },
   subTitle: {
     fontWeight: '900',
