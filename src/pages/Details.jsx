@@ -1,28 +1,31 @@
-import { Grid, Card, CardMedia, Typography, Box } from '@mui/material';
-import { useContext, useEffect } from 'react'
-import GlobalContext from '../context/provider'
-import { useNavigate, useParams } from 'react-router-dom'
+import { Grid, Card, CardMedia, Typography, Box, CircularProgress } from '@mui/material';
+import { useEffect, useState } from 'react'
+import { useParams } from 'react-router-dom'
+import { apiUrlDetails } from '../utils'
 
 const Details = () => {
     
-    const { pokemonsList } = useContext(GlobalContext)
+  const { id } = useParams()
+  const [pokemonDetail, setPokemonDetail] = useState({})
+  const [gettingData, setGettingData] = useState(false)
 
-    const { id } = useParams()
-
-    const navigate = useNavigate()
-
-    const pokemonInfo = pokemonsList[id - 1]
+    const fetchPokemonDetail = async () => {
+      setGettingData(true)
+      try {
+        const data = await fetch(`${apiUrlDetails}/${id}`)
+        const pokemonDetail = await data.json()
+        setGettingData(false)
+        setPokemonDetail(pokemonDetail)
+      } catch(error){
+        console.log(error)
+        setGettingData(false)
+      }
+  }
 
     useEffect(()=> {
-      validateId()
+      fetchPokemonDetail()
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    },[pokemonsList])
-
-    const validateId = () => {
-      if(!pokemonsList?.length){
-        navigate('/')
-      }
-    }
+    },[])
 
     const statsEs = {
       hp: 'Vida',
@@ -35,53 +38,63 @@ const Details = () => {
 
     return (
       <Box sx={styles.container}>
-        <Typography variant="h1" sx={styles.title}>{`#${pokemonInfo?.name}`}</Typography>
-        <Box sx={styles.box}>
-          <Box sx={styles.imageBox}>
-            <Card sx={styles.Card}>
-              <CardMedia
-                sx={styles.CardMedia}
-                component="img"
-                image={pokemonInfo?.sprites?.front_default}
-                alt={pokemonInfo?.name}
-              />
-            </Card>
-          </Box>
-          <Box sx={styles.statsBox}>
-              <Typography variant="h6" sx={styles.subTitle}>Estadísticas</Typography>
-            <Grid container spacing={2}>
-                {pokemonInfo?.stats?.map(item => 
-                  <Grid item key={item.stat.name} xs={12} sm={4}>
-                    <Typography gutterBottom variant="h6" component="div" sx={styles.nick}>
-                        {`${statsEs[item.stat.name]}: ${item.base_stat}`}
-                    </Typography>
-                  </Grid>
-                )}
-                <Grid item  xs={12} sm={4}><Typography gutterBottom variant="h6" component="div" sx={styles.nick}>{`Peso: ${pokemonInfo?.weight/10} Kg`}</Typography></Grid>
-                <Grid item  xs={12} sm={4}><Typography gutterBottom variant="h6" component="div" sx={styles.nick}>{`Altura: ${pokemonInfo?.height/10} Mts`}</Typography></Grid>
-            </Grid>
-            <Typography variant="h6" sx={styles.subTitle}>Habilidades</Typography>
-            <Grid container spacing={2}>
-              {pokemonInfo?.abilities?.map(item => 
-                <Grid item key={item.ability.name} xs={12} sm={4}>
-                  <Typography gutterBottom variant="h6" component="div" sx={styles.nick}>
-                      - {item.ability.name}
-                  </Typography>
+        {!gettingData ? (
+          <>
+            <Typography variant="h1" sx={styles.title}>{`#${pokemonDetail?.name}`}</Typography>
+            <Box sx={styles.box}>
+              <Box sx={styles.imageBox}>
+                <Card sx={styles.Card}>
+                  <CardMedia
+                    sx={styles.CardMedia}
+                    component="img"
+                    image={pokemonDetail?.sprites?.front_default}
+                    alt={pokemonDetail?.name}
+                  />
+                </Card>
+              </Box>
+              <Box sx={styles.statsBox}>
+                  <Typography variant="h6" sx={styles.subTitle}>Estadísticas</Typography>
+                <Grid container spacing={2}>
+                    {pokemonDetail?.stats?.map(item => 
+                      <Grid item key={item.stat.name} xs={12} sm={4}>
+                        <Typography gutterBottom variant="h6" component="div" sx={styles.nick}>
+                            {`${statsEs[item.stat.name]}: ${item.base_stat}`}
+                        </Typography>
+                      </Grid>
+                    )}
+                    <Grid item  xs={12} sm={4}><Typography gutterBottom variant="h6" component="div" sx={styles.nick}>{`Peso: ${pokemonDetail?.weight/10} Kg`}</Typography></Grid>
+                    <Grid item  xs={12} sm={4}><Typography gutterBottom variant="h6" component="div" sx={styles.nick}>{`Altura: ${pokemonDetail?.height/10} Mts`}</Typography></Grid>
                 </Grid>
-              )}
-            </Grid>
-            <Typography variant="h6" sx={styles.subTitle}>Tipos</Typography>
-            <Grid container spacing={2}>
-              {pokemonInfo?.types?.map(item => 
-                <Grid item key={item.type.name} xs={12} sm={4}>
-                  <Typography gutterBottom variant="h6" component="div" sx={styles.nick}>
-                      - {item.type.name}
-                  </Typography>
+                <Typography variant="h6" sx={styles.subTitle}>Habilidades</Typography>
+                <Grid container spacing={2}>
+                  {pokemonDetail?.abilities?.map(item => 
+                    <Grid item key={item.ability.name} xs={12} sm={4}>
+                      <Typography gutterBottom variant="h6" component="div" sx={styles.nick}>
+                          - {item.ability.name}
+                      </Typography>
+                    </Grid>
+                  )}
                 </Grid>
-              )}
-            </Grid>
-          </Box>
-        </Box>
+                <Typography variant="h6" sx={styles.subTitle}>Tipos</Typography>
+                <Grid container spacing={2}>
+                  {pokemonDetail?.types?.map(item => 
+                    <Grid item key={item.type.name} xs={12} sm={4}>
+                      <Typography gutterBottom variant="h6" component="div" sx={styles.nick}>
+                          - {item.type.name}
+                      </Typography>
+                    </Grid>
+                  )}
+                </Grid>
+              </Box>
+            </Box>
+          </>
+        ):
+        <Grid container sx={styles.loader}>
+          <Grid item>
+            <CircularProgress size="70px"/>
+          </Grid>
+        </Grid>
+        }
       </Box>
     )
 }
